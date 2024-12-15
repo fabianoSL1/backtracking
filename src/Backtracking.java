@@ -2,62 +2,51 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Backtracking {
-    private int invocations = 0;
+    private final List<String> input;
+    private final List<List<String>> results;
 
-    public List<List<String>> resolve(List<String> toOrder) {
-        List<List<String>> solutions = new ArrayList<>();
-        List<String> answer = new ArrayList<>();
-
-        solve(toOrder, answer, solutions);
-
-        System.out.printf("a função solve foi invocada %d%n%n", invocations);
-
-        return solutions;
+    public Backtracking(List<String> input) {
+        this.input = input;
+        this.results = new ArrayList<>();
     }
 
-    public void solve(List<String> toOrder, List<String> answer, List<List<String>> solutions) {
-        invocations++;
+    public List<List<String>> execute() {
+        this.backtrack(new ArrayList<>());
+        return this.results;
+    }
 
-        if (isCorrect(answer)) {
-            solutions.add(new ArrayList<>(answer));
+    private void backtrack(List<String> partial) {
+        if (isCorrect(partial)) {
+            results.add(List.copyOf(partial));
             return;
         }
 
-        for (String word : toOrder) {
-            if (!answer.contains(word)) {
-                answer.add(word);
+        for (String word: input) {
+            if (!partial.contains(word)) {
+                partial.add(word);
 
-                solve(toOrder, answer, solutions);
+                backtrack(partial);
 
-                answer.remove(word);
+                partial.remove(word);
             }
         }
     }
 
-    public boolean isCorrect(List<String> answer) {
-        if (answer.size() < 5) {
+    public boolean isCorrect(List<String> partial) {
+        if (partial.size() < 5) {
             return false;
         }
 
-        if (answer.indexOf("bananas") != 3) {
+        if (partial.indexOf("bananas") != 3) {
             return false;
         }
 
-        int indexGoiabas = answer.indexOf("goiabas");
-        int indexPeras  = answer.indexOf("peras");
-
-        if (Math.abs(indexGoiabas - indexPeras) != 4) {
+        if (Math.abs(partial.indexOf("goiabas") - partial.indexOf("peras")) != 4) {
                 return false;
         }
 
-        int indexPessegos = answer.indexOf("pessegos");
+        var sub = partial.subList(partial.indexOf("pessegos") + 1, partial.size());
 
-        var sub = answer.subList(indexPessegos + 1, answer.size());
-
-        if (sub.size() != 2 || !sub.contains("peras")) {
-            return false;
-        }
-
-        return true;
+        return sub.size() == 2 && sub.contains("peras");
     }
 }
